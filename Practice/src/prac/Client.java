@@ -7,6 +7,7 @@ public class Client {
 
 	public static void main(String[] args) throws Exception {
 		Scanner in=new Scanner(System.in);
+		DepartmentService service=new DepartmentService();
 		boolean flag=true;
 		 DepartmentNO DO=new DepartmentNO();
 		while(flag) {
@@ -14,6 +15,7 @@ public class Client {
 			int option=in.nextInt();
 			switch(option) {
 			case 0: flag=false;
+					DBUtil.closeConnection();
 			        System.out.println("Exit succesfully ");
 					break;
 			case 1: {
@@ -27,8 +29,13 @@ public class Client {
 				    dept.setDno(did);
 				    dept.setDname(dname);
 				    dept.setLoc(location);
-				    System.out.println(DO.addDept(dept));
+				    if(service.dataValidate(dept)) {
+				    System.out.println(service.addDept(dept));
 				    System.out.println("Added Succesfully ");
+				    }
+				    else {
+				    	System.err.println("Enter the Valid Data");
+				    }
 				    break;
 			}
 			case 2: {
@@ -42,7 +49,7 @@ public class Client {
 			    dept.setDno(did);
 			    dept.setDname(dname);
 			    dept.setLoc(location);
-			    System.out.println(DO.updateDept(dept));
+			    System.out.println(service.updateDept(dept));
 			    System.out.println("updated Succesfully ");
 			    break;
 			}
@@ -50,19 +57,38 @@ public class Client {
 				System.out.println("DEL");
 				 System.out.println("Enter did to delete ");
 				int dno=in.nextInt();
-				DO.deleteDept(dno);
-				System.out.println("DELETED Succesfully ");
+				int cnt=service.deleteDept(dno);
+				if(cnt==0) {
+					try {
+						throw new DepartmentNotFound();
+					}
+					catch(Exception e) {
+						System.err.println("Not Found ");
+					}
+				}
+				else {
+					System.out.println("DELETED Succesfully ");
+				}
+					
 			    break;
 			}
 			case 4: {
 				 System.out.println("Enter did to retrieve ");
 					int dno=in.nextInt();
-					Department dep=DO.selectDept(dno);
+					Department dep=service.selectDept(dno);
+					if(dep==null) {
+						try {
+							throw new DepartmentNotFound();
+						}
+						catch(Exception e) {
+							System.err.println("Not Found");
+						}
+					}
 					System.out.println(dep);
 			    break;
 			}	
 			case 5:{
-				List<Department> ls=DO.selectAll();
+				List<Department> ls=service.selectAll();
 				for(Department dep:ls) {
 					System.out.println(dep);
 				}

@@ -16,4 +16,13 @@ public class DBUtil {
 		}
 		return conn;
 	}
+	public static void closeConnection() {
+		Connection conn;
+		try {
+			conn = getDBConnection();
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
